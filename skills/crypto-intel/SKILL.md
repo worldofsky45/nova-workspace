@@ -27,17 +27,28 @@ Provide actionable crypto investment analysis daily, validate strategies before 
 
 ## Data Sources
 
-**On-chain metrics:**
-- CoinGecko/CoinMarketCap for prices
-- DeFiLlama for TVL and protocol metrics
-- Alternative.me for Fear & Greed index
-- Glassnode/IntoTheBlock for on-chain data (if available)
+**Price data (use APIs, not web scraping):**
+- CoinGecko API: `/api/v3/simple/price` for BTC, ETH, SOL, XRP, ADA
+- CoinGecko API: `/api/v3/global` for BTC dominance
+- Alternative.me API: `/fng/` for Fear & Greed index
+
+**DeFi protocol APYs (use APIs):**
+- DeFiLlama Yields API: `https://yields.llama.fi/pools`
+- Filter for: Aave v3, Morpho, Curve (3pool)
+- Extract: APY base, APY rewards, TVL
+
+**Assets tracked:**
+- BTC (Bitcoin)
+- ETH (Ethereum)
+- SOL (Solana)
+- XRP (Ripple)
+- ADA (Cardano)
 
 **Market data:**
-- 24h volume, volatility
-- BTC dominance trend
-- Stablecoin supply changes
-- Exchange inflows/outflows
+- 24h volume, volatility (from CoinGecko)
+- BTC dominance trend (from CoinGecko global)
+- Stablecoin supply changes (DeFiLlama stablecoins API)
+- Exchange inflows/outflows (Glassnode if available, otherwise skip)
 
 **Macro context:**
 - 10-year Treasury yield (affects risk appetite)
@@ -147,11 +158,21 @@ If any check fails, flag it or recommend smaller test amount.
 ## Execution Notes
 
 - Run daily at 7:00 AM Chicago time
-- Use web_search for latest crypto news
-- Fetch prices from CoinGecko API or web scraping
-- Check DeFiLlama for protocol TVL/APY
+- **Use APIs first, web scraping only as fallback**
+- Fetch all prices in one CoinGecko API call (BTC, ETH, SOL, XRP, ADA)
+- Fetch Fear & Greed from Alternative.me API
+- Fetch DeFi APYs from DeFiLlama Yields API (Aave, Morpho, Curve)
+- Cache API responses in `~/crypto-intel/cache/` for 1 hour
+- If API fails, use cached data and note staleness in brief
 - Review previous day's predictions and update scorecard
+- Use web_search for latest crypto news/events only (not for price/APY data)
 - Deliver brief to Sky via Telegram
+
+**Data reliability checklist:**
+- [ ] All 5 asset prices fetched successfully
+- [ ] Fear & Greed index retrieved
+- [ ] Aave, Morpho, Curve APYs retrieved
+- [ ] If any missing, flag clearly in brief and skip predictions that depend on it
 
 ## References
 

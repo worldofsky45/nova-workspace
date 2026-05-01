@@ -1,0 +1,3 @@
+# Cache directory for API responses
+# Reduces API calls and provides fallback data
+# Files auto-expire after 1 hour
