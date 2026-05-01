@@ -31,38 +31,34 @@ curl "https://api.coingecko.com/api/v3/global"
 
 ### DeFiLlama API (Free, No Key)
 ```bash
-# Get all Aave v3 pools across chains
+# Get all lending pools
 curl "https://yields.llama.fi/pools"
 
-# Filter for Aave v3 USDC (example response):
-{
-  "pool": "aave-v3-usdc-ethereum",
-  "chain": "Ethereum",
-  "project": "aave-v3",
-  "symbol": "USDC",
-  "tvlUsd": 1200000000,
-  "apyBase": 2.7,
-  "apyReward": 0,
-  "apy": 2.7
-}
+# Aave v3 USDC (Ethereum)
+curl "https://yields.llama.fi/pools" | jq '.data[] | select(.project == "aave-v3" and .symbol == "USDC" and .chain == "Ethereum")'
+
+# Curve 3pool
+curl "https://yields.llama.fi/pools" | jq '.data[] | select(.project == "curve-dex" and .symbol == "DAI-USDC-USDT")'
 ```
 
-### Morpho APY
+### Morpho GraphQL API (Free, No Key)
 ```bash
-# Morpho optimizer rates via DeFiLlama
-curl "https://yields.llama.fi/pools" | jq '.data[] | select(.project == "morpho-aave-v3")'
+# Morpho USDC markets (Ethereum)
+curl -X POST https://api.morpho.org/graphql \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "query { markets(first: 20, orderBy: SupplyAssetsUsd, orderDirection: Desc, where: { chainId_in: [1], loanAssetSymbol_in: [\"USDC\"] }) { items { marketId loanAsset { symbol } collateralAsset { symbol } state { supplyApy avgSupplyApy supplyAssetsUsd borrowAssetsUsd utilization } } } }"
+  }'
 
-# Or direct from Morpho API (if available):
-curl "https://api.morpho.org/v1/markets/usdc-ethereum"
+# Filter for markets with >$50M TVL and <50% APY (excludes anomalies)
+# Use avgSupplyApy for more stable rates (30d average)
 ```
 
-### Curve 3pool
-```bash
-# Curve APYs via DeFiLlama
-curl "https://yields.llama.fi/pools" | jq '.data[] | select(.project == "curve" and .symbol contains "3pool")'
-
-# Returns base APY + CRV rewards separately
-```
+**Key notes:**
+- Morpho has many markets per asset (different collateral types)
+- Filter for: `supplyAssetsUsd > 50000000` (>$50M) and `supplyApy < 50` (reasonable APY)
+- Use `avgSupplyApy` for 30-day average (more stable than real-time `supplyApy`)
+- Ignore markets with crazy APYs (2000%+) — they're low liquidity or edge cases
 
 ---
 
@@ -98,6 +94,7 @@ If APIs fail (rate limits, downtime):
 
 - **CoinGecko Free:** 10-30 calls/min (plenty for daily use)
 - **DeFiLlama:** No published limits, generally permissive
+- **Morpho GraphQL:** No published limits (complexity-based throttling)
 - **Alternative.me:** No published limits
 
 **Best practice:** Cache responses in `~/crypto-intel/cache/` for 1 hour to avoid hitting limits.
