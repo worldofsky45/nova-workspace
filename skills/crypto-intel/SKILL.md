@@ -162,10 +162,14 @@ If any check fails, flag it or recommend smaller test amount.
 - Fetch all prices in one CoinGecko API call (BTC, ETH, SOL, XRP, ADA)
 - Fetch Fear & Greed from Alternative.me API
 - Fetch DeFi APYs from DeFiLlama Yields API (Aave, Morpho, Curve)
+- **Fetch crypto news from RSS feeds** (see news-sources.md)
+  - CoinDesk, CoinTelegraph, The Block, Decrypt
+  - Parse last 24h headlines
+  - Filter for high/medium impact stories
+  - Assign sentiment (bullish/bearish/neutral)
 - Cache API responses in `~/crypto-intel/cache/` for 1 hour
 - If API fails, use cached data and note staleness in brief
 - Review previous day's predictions and update scorecard
-- Use web_search for latest crypto news/events only (not for price/APY data)
 - Deliver brief to Sky via Telegram
 
 **Data reliability checklist:**
