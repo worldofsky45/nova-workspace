@@ -1,0 +1,88 @@
+{
+  "pending": [
+    {
+      "id": "newsletter-predictor-001",
+      "name": "Newsletter Subscriber Predictor",
+      "tier": 1,
+      "stars": 5,
+      "one_liner": "Predict which LinkedIn posts drive newsletter signups",
+      "feedback_loop": "48 hours",
+      "roi_potential": "$5K MRR",
+      "complexity": "Easy (1-2 weeks)",
+      "capital_required": "$0",
+      "success_rate_needed": "30%+",
+      "generated": "2026-05-05",
+      "source_file": "ENGINE-IDEAS-BATCH-001.md#idea-1"
+    },
+    {
+      "id": "airbnb-optimizer-002",
+      "name": "Airbnb Price Optimizer",
+      "tier": 1,
+      "stars": 5,
+      "one_liner": "Dynamic pricing to maximize revenue by 15-30%",
+      "feedback_loop": "Daily",
+      "roi_potential": "+$500/month",
+      "complexity": "Medium (2-3 weeks)",
+      "capital_required": "$20/month",
+      "success_rate_needed": "N/A (optimization)",
+      "generated": "2026-05-05",
+      "source_file": "ENGINE-IDEAS-BATCH-001.md#idea-4"
+    },
+    {
+      "id": "upwork-arbitrage-003",
+      "name": "Upwork Gig Arbitrage",
+      "tier": 2,
+      "stars": 4,
+      "one_liner": "Outsource gigs to VAs at 70%+ profit margins",
+      "feedback_loop": "5-10 days",
+      "roi_potential": "$4K/month",
+      "complexity": "Medium (3-4 weeks)",
+      "capital_required": "$500",
+      "success_rate_needed": "80%+ completion",
+      "generated": "2026-05-05",
+      "source_file": "ENGINE-IDEAS-BATCH-001.md#idea-2"
+    },
+    {
+      "id": "domain-flipper-004",
+      "name": "Domain Flip Predictor",
+      "tier": 2,
+      "stars": 4,
+      "one_liner": "Buy expiring domains, predict 5-10x resale value",
+      "feedback_loop": "90 days",
+      "roi_potential": "5-10x returns",
+      "complexity": "Medium (3-4 weeks)",
+      "capital_required": "$500",
+      "success_rate_needed": "30% sell at 5x+",
+      "generated": "2026-05-05",
+      "source_file": "ENGINE-IDEAS-BATCH-001.md#idea-3"
+    },
+    {
+      "id": "earnings-predictor-005",
+      "name": "Stock Earnings Surprise Predictor",
+      "tier": 3,
+      "stars": 3,
+      "one_liner": "Predict earnings beat/miss, options plays",
+      "feedback_loop": "Quarterly",
+      "roi_potential": "$12K/year (3.2x)",
+      "complexity": "Hard (1 month)",
+      "capital_required": "$1000",
+      "success_rate_needed": "60%+ wins",
+      "generated": "2026-05-05",
+      "source_file": "ENGINE-IDEAS-BATCH-001.md#idea-5"
+    }
+  ],
+  "approved": [
+    {
+      "id": "crypto-intel",
+      "name": "Crypto Intel",
+      "approved": "2026-05-04",
+      "status": "active",
+      "week": 1,
+      "next_milestone": "2026-05-18",
+      "paper_trading_balance": 1003.33
+    }
+  ],
+  "queued": [],
+  "rejected": [],
+  "last_updated": "2026-05-05T23:04:00Z"
+}

@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky's Mission Control Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .last-update {
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        /* System Health Bar */
+        .health-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .health-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .health-indicator.healthy {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+        
+        .health-indicator.warning {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+        
+        .health-indicator.critical {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .health-text {
+            color: white;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .health-metrics {
+            display: flex;
+            gap: 20px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+        }
+        
+        /* Hero Stats */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .hero-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            color: white;
+            transition: transform 0.2s;
+        }
+        
+        .hero-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.4);
+        }
+        
+        .hero-card.positive {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .hero-card.negative {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .hero-card.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .hero-card.orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .hero-card h3 {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .hero-card .value {
+            font-size: 2.2em;
+            font-weight: bold;
+        }
+        
+        /* Two Column Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Section Card */
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .section-card h2 {
+            margin-bottom: 20px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Paper Trading Section */
+        .trade-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .trade-item.winning {
+            border-left-color: #10b981;
+            background: linear-gradient(to right, #ecfdf5 0%, #f8fafc 15%);
+        }
+        
+        .trade-item.losing {
+            border-left-color: #ef4444;
+            background: linear-gradient(to right, #fef2f2 0%, #f8fafc 15%);
+        }
+        
+        .trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .trade-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .trade-pnl {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        .trade-pnl.positive { color: #10b981; }
+        .trade-pnl.negative { color: #ef4444; }
+        
+        .trade-details {
+            font-size: 0.9em;
+            color: #64748b;
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* Polymarket Section */
+        .signal-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+        
+        .signal-title {
+            font-weight: 600;
+            color: #1e293b;
+            flex: 1;
+        }
+        
+        .signal-confidence {
+            background: #8b5cf6;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .signal-details {
+            font-size: 0.9em;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .signal-performance {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        
+        .signal-performance span {
+            font-weight: 600;
+        }
+        
+        /* ROI Tracker */
+        .roi-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .roi-project {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .roi-metrics {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .roi-value {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        .roi-value.positive { color: #10b981; }
+        .roi-value.negative { color: #ef4444; }
+        
+        .roi-percentage {
+            font-size: 0.9em;
+            color: #64748b;
+        }
+        
+        /* Idea Engine Section */
+        .idea-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 5px solid #f59e0b;
+            transition: all 0.3s ease;
+        }
+        
+        .idea-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(3px);
+        }
+        
+        .idea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .idea-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        
+        .idea-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .tier-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tier-1 {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .tier-2 {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .tier-3 {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .star-rating {
+            color: #f59e0b;
+            font-size: 1.1em;
+            letter-spacing: 2px;
+        }
+        
+        .idea-one-liner {
+            font-size: 0.95em;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+        
+        .idea-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .idea-metric {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .metric-label {
+            font-size: 0.75em;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95em;
+        }
+        
+        .roi-highlight {
+            color: #10b981;
+            font-size: 1.1em;
+        }
+        
+        .idea-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        
+        .idea-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .idea-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .idea-btn:active {
+            transform: translateY(0);
+        }
+        
+        .idea-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .approve-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .approve-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        
+        .reject-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .reject-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+        
+        .idea-status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-weight: 600;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+        
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+        
+        .idea-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .idea-counts {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        
+        .idea-count-badge {
+            background: rgba(0,0,0,0.05);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.75em;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+        
+        /* Collapsible Sections */
+        .collapsible-section {
+            margin-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            user-select: none;
+        }
+        
+        .collapsible-header:hover {
+            color: #3b82f6;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.open {
+            max-height: 2000px;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Sky's Mission Control</h1>
+        <div class="last-update" id="lastUpdate">Loading...</div>
+        
+        <!-- System Health Bar -->
+        <div class="health-bar">
+            <div class="health-indicator healthy" id="healthIndicator"></div>
+            <div class="health-text" id="healthText">All Systems Operational</div>
+            <div class="health-metrics">
+                <span>📊 Data: <strong id="dataStatus">OK</strong></span>
+                <span>🔄 Sync: <strong id="syncStatus">OK</strong></span>
+                <span>⚡ API: <strong id="apiStatus">OK</strong></span>
+            </div>
+        </div>
+        
+        <!-- Hero Stats -->
+        <div class="hero-grid">
+            <div class="hero-card" id="pnlCard">
+                <h3>Paper Trading P&L</h3>
+                <div class="value" id="tradingPnL">$0.00</div>
+            </div>
+            <div class="hero-card purple">
+                <h3>Polymarket Accuracy</h3>
+                <div class="value" id="polymarketAccuracy">0%</div>
+            </div>
+            <div class="hero-card">
+                <h3>Total ROI</h3>
+                <div class="value" id="totalROI">$0.00</div>
+            </div>
+            <div class="hero-card">
+                <h3>Active Positions</h3>
+                <div class="value" id="activePositions">0</div>
+            </div>
+            <div class="hero-card orange">
+                <h3>Pending Ideas</h3>
+                <div class="value" id="pendingIdeasCount">0</div>
+            </div>
+        </div>
+        
+        <!-- Idea Engine Section (NEW) -->
+        <div class="section-card">
+            <div class="idea-section-header">
+                <h2>💡 Idea Engine</h2>
+                <div class="idea-counts">
+                    <div class="idea-count-badge">⏳ Pending: <span id="ideaCountPending">0</span></div>
+                    <div class="idea-count-badge">✅ Approved: <span id="ideaCountApproved">0</span></div>
+                    <div class="idea-count-badge">❌ Rejected: <span id="ideaCountRejected">0</span></div>
+                </div>
+            </div>
+            <div id="pendingIdeas">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💡</div>
+                    <div>No pending ideas</div>
+                </div>
+            </div>
+            
+            <!-- Approved Projects Section -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="toggleSection('approved')">
+                    <h3>✅ Approved Projects</h3>
+                    <span class="toggle-icon" id="approvedToggle">▼</span>
+                </div>
+                <div class="collapsible-content" id="approvedContent">
+                    <div id="approvedIdeas">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✅</div>
+                            <div>No approved projects yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rejected Ideas Section -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="toggleSection('rejected')">
+                    <h3>❌ Rejected Ideas</h3>
+                    <span class="toggle-icon" id="rejectedToggle">▼</span>
+                </div>
+                <div class="collapsible-content" id="rejectedContent">
+                    <div id="rejectedIdeas">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❌</div>
+                            <div>No rejected ideas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Paper Trading -->
+            <div class="section-card">
+                <h2>📈 Paper Trading</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-value" id="winRate">0%</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Trades</div>
+                        <div class="stat-value" id="totalTrades">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Risk/Reward</div>
+                        <div class="stat-value" id="riskReward">0:1</div>
+                    </div>
+                </div>
+                <div id="activeTrades">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div>No active trades</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Polymarket Signals -->
+            <div class="section-card">
+                <h2>🎲 Polymarket Signals</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Accuracy</div>
+                        <div class="stat-value" id="signalAccuracy">0%</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Active</div>
+                        <div class="stat-value" id="activeSignals">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">P&L</div>
+                        <div class="stat-value" id="signalPnL">$0</div>
+                    </div>
+                </div>
+                <div id="polymarketSignals">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎲</div>
+                        <div>No active signals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ROI Tracker -->
+        <div class="section-card">
+            <h2>💰 ROI Tracker</h2>
+            <div id="roiTracker">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💰</div>
+                    <div>No ROI data available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Data file paths
+        const TRADES_PATH = './crypto-intel/paper-trading/trades.jsonl';
+        const POLYMARKET_PATH = './polymarket-signals.jsonl';
+        const ROI_PATH = './roi-tracker.jsonl';
+        const IDEAS_STATE_PATH = './skills/engine-ideation/ideas-state.json';
+        const IDEA_ACTIONS_PATH = './idea-engine-actions.jsonl';
+        
+        async function loadDashboard() {
+            try {
+                // Update timestamp
+                document.getElementById('lastUpdate').textContent = 
+                    `Last updated: ${new Date().toLocaleString('en-US', { 
+                        timeZone: 'America/Chicago',
+                        dateStyle: 'medium',
+                        timeStyle: 'short'
+                    })} CT`;
+                
+                // Load all data
+                await Promise.all([
+                    loadPaperTrading(),
+                    loadPolymarket(),
+                    loadROI(),
+                    loadIdeaEngine()
+                ]);
+                
+                updateSystemHealth();
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+                updateSystemHealth('error');
+            }
+        }
+        
+        async function loadIdeaEngine() {
+            try {
+                const response = await fetch(IDEAS_STATE_PATH);
+                const data = await response.json();
+                
+                const pending = data.pending || [];
+                const approved = data.approved || [];
+                const rejected = data.rejected || [];
+                
+                // Update counts
+                document.getElementById('pendingIdeasCount').textContent = pending.length;
+                document.getElementById('ideaCountPending').textContent = pending.length;
+                document.getElementById('ideaCountApproved').textContent = approved.length;
+                document.getElementById('ideaCountRejected').textContent = rejected.length;
+                
+                // Render pending ideas
+                if (pending.length > 0) {
+                    const html = pending.map(idea => renderIdeaCard(idea, 'pending')).join('');
+                    document.getElementById('pendingIdeas').innerHTML = html;
+                } else {
+                    document.getElementById('pendingIdeas').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💡</div>
+                            <div>No pending ideas</div>
+                        </div>
+                    `;
+                }
+                
+                // Render approved projects
+                if (approved.length > 0) {
+                    const html = approved.map(idea => renderIdeaCard(idea, 'approved')).join('');
+                    document.getElementById('approvedIdeas').innerHTML = html;
+                } else {
+                    document.getElementById('approvedIdeas').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✅</div>
+                            <div>No approved projects yet</div>
+                        </div>
+                    `;
+                }
+                
+                // Render rejected ideas
+                if (rejected.length > 0) {
+                    const html = rejected.map(idea => renderIdeaCard(idea, 'rejected')).join('');
+                    document.getElementById('rejectedIdeas').innerHTML = html;
+                } else {
+                    document.getElementById('rejectedIdeas').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❌</div>
+                            <div>No rejected ideas</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load idea engine:', error);
+            }
+        }
+        
+        function renderIdeaCard(idea, status) {
+            const stars = '★'.repeat(idea.stars) + '☆'.repeat(5 - idea.stars);
+            const tierClass = `tier-${idea.tier}`;
+            
+            let actionsHTML = '';
+            if (status === 'pending') {
+                actionsHTML = `
+                    <div class="idea-actions">
+                        <button class="idea-btn approve-btn" onclick="handleIdeaAction('${idea.id}', 'approve')">
+                            ✅ Approve
+                        </button>
+                        <button class="idea-btn reject-btn" onclick="handleIdeaAction('${idea.id}', 'reject')">
+                            ❌ Reject
+                        </button>
+                    </div>
+                    <div id="status-${idea.id}"></div>
+                `;
+            } else if (status === 'approved') {
+                actionsHTML = `<div style="text-align: center; color: #10b981; font-weight: 700; margin-top: 12px;">✅ Approved on ${idea.approved || 'N/A'}</div>`;
+            } else if (status === 'rejected') {
+                actionsHTML = `<div style="text-align: center; color: #ef4444; font-weight: 700; margin-top: 12px;">❌ Rejected on ${idea.rejected || 'N/A'}</div>`;
+            }
+            
+            return `
+                <div class="idea-card" id="idea-${idea.id}">
+                    <div class="idea-header">
+                        <div>
+                            <div class="idea-title">${idea.name}</div>
+                            <div class="idea-one-liner">"${idea.one_liner}"</div>
+                        </div>
+                        <div class="idea-badges">
+                            <div class="tier-badge ${tierClass}">Tier ${idea.tier}</div>
+                            <div class="star-rating">${stars}</div>
+                        </div>
+                    </div>
+                    <div class="idea-metrics">
+                        <div class="idea-metric">
+                            <div class="metric-label">ROI Potential</div>
+                            <div class="metric-value roi-highlight">${idea.roi_potential}</div>
+                        </div>
+                        <div class="idea-metric">
+                            <div class="metric-label">Complexity</div>
+                            <div class="metric-value">${idea.complexity}</div>
+                        </div>
+                        <div class="idea-metric">
+                            <div class="metric-label">Capital Required</div>
+                            <div class="metric-value">${idea.capital_required}</div>
+                        </div>
+                        <div class="idea-metric">
+                            <div class="metric-label">Feedback Loop</div>
+                            <div class="metric-value">${idea.feedback_loop}</div>
+                        </div>
+                    </div>
+                    ${actionsHTML}
+                </div>
+            `;
+        }
+        
+        async function handleIdeaAction(ideaId, action) {
+            const statusDiv = document.getElementById(`status-${ideaId}`);
+            const approveBtn = document.querySelector(`#idea-${ideaId} .approve-btn`);
+            const rejectBtn = document.querySelector(`#idea-${ideaId} .reject-btn`);
+            
+            // Disable buttons
+            if (approveBtn) approveBtn.disabled = true;
+            if (rejectBtn) rejectBtn.disabled = true;
+            
+            try {
+                // 1. Write action to JSONL log
+                const actionLog = {
+                    timestamp: new Date().toISOString(),
+                    id: ideaId,
+                    action: action,
+                    note: `Action taken from Mission Control dashboard`
+                };
+                
+                await fetch(IDEA_ACTIONS_PATH, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(actionLog) + '\n'
+                });
+                
+                // 2. Load current ideas-state.json
+                const response = await fetch(IDEAS_STATE_PATH);
+                const data = await response.json();
+                
+                // 3. Find and move the idea
+                const ideaIndex = data.pending.findIndex(i => i.id === ideaId);
+                if (ideaIndex === -1) {
+                    throw new Error('Idea not found in pending list');
+                }
+                
+                const idea = data.pending.splice(ideaIndex, 1)[0];
+                
+                if (action === 'approve') {
+                    idea.approved = new Date().toISOString().split('T')[0];
+                    idea.status = 'approved';
+                    data.approved.push(idea);
+                } else {
+                    idea.rejected = new Date().toISOString().split('T')[0];
+                    idea.status = 'rejected';
+                    data.rejected.push(idea);
+                }
+                
+                data.last_updated = new Date().toISOString();
+                
+                // 4. Write updated state back
+                await fetch(IDEAS_STATE_PATH, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data, null, 2)
+                });
+                
+                // 5. Show success message
+                const actionText = action === 'approve' ? 'approved' : 'rejected';
+                const statusClass = action === 'approve' ? 'status-success' : 'status-error';
+                statusDiv.innerHTML = `<div class="idea-status-message ${statusClass}">✓ Idea ${actionText} successfully!</div>`;
+                
+                // 6. Reload dashboard after 1 second
+                setTimeout(() => {
+                    loadDashboard();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Failed to process idea action:', error);
+                statusDiv.innerHTML = `<div class="idea-status-message status-error">✗ Error: ${error.message}</div>`;
+                
+                // Re-enable buttons on error
+                if (approveBtn) approveBtn.disabled = false;
+                if (rejectBtn) rejectBtn.disabled = false;
+            }
+        }
+        
+        function toggleSection(section) {
+            const content = document.getElementById(`${section}Content`);
+            const toggle = document.getElementById(`${section}Toggle`);
+            
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+        
+        async function loadPaperTrading() {
+            try {
+                const response = await fetch(TRADES_PATH);
+                const text = await response.text();
+                const trades = text.trim().split('\n')
+                    .filter(line => line.trim())
+                    .map(line => JSON.parse(line));
+                
+                const closedTrades = trades.filter(t => t.status === 'closed' || t.status === 'partial');
+                const activeTrades = trades.filter(t => t.status === 'active');
+                const wins = closedTrades.filter(t => t.pnl > 0);
+                
+                const totalPnL = closedTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+                const winRate = closedTrades.length > 0 
+                    ? ((wins.length / closedTrades.length) * 100).toFixed(1)
+                    : '0.0';
+                
+                const avgWin = wins.length > 0 
+                    ? wins.reduce((sum, t) => sum + t.pnl, 0) / wins.length 
+                    : 0;
+                const losses = closedTrades.filter(t => t.pnl < 0);
+                const avgLoss = losses.length > 0 
+                    ? Math.abs(losses.reduce((sum, t) => sum + t.pnl, 0) / losses.length)
+                    : 0;
+                const riskReward = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : '0.00';
+                
+                // Update hero stats
+                document.getElementById('tradingPnL').textContent = `$${totalPnL.toFixed(2)}`;
+                const pnlCard = document.getElementById('pnlCard');
+                pnlCard.className = totalPnL >= 0 ? 'hero-card positive' : 'hero-card negative';
+                
+                // Update stats
+                document.getElementById('winRate').textContent = `${winRate}%`;
+                document.getElementById('totalTrades').textContent = closedTrades.length;
+                document.getElementById('riskReward').textContent = `${riskReward}:1`;
+                document.getElementById('activePositions').textContent = activeTrades.length;
+                
+                // Render active trades
+                if (activeTrades.length > 0) {
+                    const prices = await fetchCurrentPrices([...new Set(activeTrades.map(t => t.asset))]);
+                    
+                    const html = activeTrades.slice(0, 5).map(trade => {
+                        const currentPrice = prices[trade.asset] || trade.entry_price;
+                        const unrealizedPnL = (currentPrice - trade.entry_price) * trade.position_size;
+                        const unrealizedPnLPct = ((currentPrice - trade.entry_price) / trade.entry_price) * 100;
+                        
+                        const cardClass = unrealizedPnL >= 0 ? 'winning' : 'losing';
+                        const pnlClass = unrealizedPnL >= 0 ? 'positive' : 'negative';
+                        
+                        return `
+                            <div class="trade-item ${cardClass}">
+                                <div class="trade-header">
+                                    <div class="trade-title">${trade.signal}</div>
+                                    <div class="trade-pnl ${pnlClass}">$${unrealizedPnL.toFixed(2)}</div>
+                                </div>
+                                <div class="trade-details">
+                                    <span>${trade.asset}</span>
+                                    <span>Entry: $${trade.entry_price.toLocaleString()}</span>
+                                    <span>Current: $${currentPrice.toLocaleString()}</span>
+                                    <span>${unrealizedPnLPct >= 0 ? '+' : ''}${unrealizedPnLPct.toFixed(2)}%</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('activeTrades').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Failed to load paper trading:', error);
+            }
+        }
+        
+        async function loadPolymarket() {
+            try {
+                const response = await fetch(POLYMARKET_PATH);
+                const text = await response.text();
+                const signals = text.trim().split('\n')
+                    .filter(line => line.trim())
+                    .map(line => JSON.parse(line));
+                
+                const activeSignals = signals.filter(s => s.status === 'active');
+                const resolvedSignals = signals.filter(s => s.status === 'resolved');
+                const correctSignals = resolvedSignals.filter(s => s.correct === true);
+                
+                const accuracy = resolvedSignals.length > 0
+                    ? ((correctSignals.length / resolvedSignals.length) * 100).toFixed(1)
+                    : '0.0';
+                
+                const totalPnL = resolvedSignals.reduce((sum, s) => sum + (s.pnl || 0), 0);
+                
+                // Update hero stats
+                document.getElementById('polymarketAccuracy').textContent = `${accuracy}%`;
+                
+                // Update stats
+                document.getElementById('signalAccuracy').textContent = `${accuracy}%`;
+                document.getElementById('activeSignals').textContent = activeSignals.length;
+                document.getElementById('signalPnL').textContent = `$${totalPnL.toFixed(0)}`;
+                
+                // Render active signals
+                if (activeSignals.length > 0) {
+                    const html = activeSignals.slice(0, 5).map(signal => `
+                        <div class="signal-item">
+                            <div class="signal-header">
+                                <div class="signal-title">${signal.market}</div>
+                                <div class="signal-confidence">${signal.confidence}%</div>
+                            </div>
+                            <div class="signal-details">
+                                Prediction: <strong>${signal.prediction}</strong>
+                            </div>
+                            <div class="signal-performance">
+                                <span>Current Odds: ${signal.current_odds || 'N/A'}</span>
+                                <span>Entry: ${signal.entry_odds}</span>
+                                <span>Position: $${signal.position_size}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('polymarketSignals').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Failed to load Polymarket:', error);
+                // File might not exist yet - that's okay
+                if (error.message.includes('404')) {
+                    console.log('Polymarket data file not found - will create on first signal');
+                }
+            }
+        }
+        
+        async function loadROI() {
+            try {
+                const response = await fetch(ROI_PATH);
+                const text = await response.text();
+                const projects = text.trim().split('\n')
+                    .filter(line => line.trim())
+                    .map(line => JSON.parse(line));
+                
+                const totalROI = projects.reduce((sum, p) => sum + (p.roi || 0), 0);
+                document.getElementById('totalROI').textContent = `$${totalROI.toFixed(2)}`;
+                
+                if (projects.length > 0) {
+                    const html = projects.map(project => {
+                        const roiClass = project.roi >= 0 ? 'positive' : 'negative';
+                        const roiPct = project.invested > 0 
+                            ? ((project.roi / project.invested) * 100).toFixed(1)
+                            : '0.0';
+                        
+                        return `
+                            <div class="roi-item">
+                                <div class="roi-project">${project.name}</div>
+                                <div class="roi-metrics">
+                                    <div class="roi-value ${roiClass}">$${project.roi.toFixed(2)}</div>
+                                    <div class="roi-percentage">(${roiPct >= 0 ? '+' : ''}${roiPct}%)</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('roiTracker').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Failed to load ROI:', error);
+                // File might not exist yet - that's okay
+                if (error.message.includes('404')) {
+                    console.log('ROI data file not found - will create when tracking starts');
+                }
+            }
+        }
+        
+        function updateSystemHealth(status = 'healthy') {
+            const indicator = document.getElementById('healthIndicator');
+            const text = document.getElementById('healthText');
+            
+            if (status === 'healthy') {
+                indicator.className = 'health-indicator healthy';
+                text.textContent = 'All Systems Operational';
+            } else if (status === 'warning') {
+                indicator.className = 'health-indicator warning';
+                text.textContent = 'Some Services Degraded';
+            } else {
+                indicator.className = 'health-indicator critical';
+                text.textContent = 'System Error - Check Logs';
+            }
+        }
+        
+        async function fetchCurrentPrices(assets) {
+            const coinIds = {
+                'BTC': 'bitcoin',
+                'ETH': 'ethereum',
+                'SOL': 'solana',
+                'XRP': 'ripple',
+                'TON': 'the-open-network',
+                'PENGU': 'pengu',
+                'ZEC': 'zcash'
+            };
+            
+            const ids = assets.map(a => coinIds[a]).filter(Boolean).join(',');
+            
+            try {
+                const response = await fetch(
+                    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
+                );
+                const data = await response.json();
+                
+                const prices = {};
+                for (const [asset, coinId] of Object.entries(coinIds)) {
+                    if (data[coinId]) {
+                        prices[asset] = data[coinId].usd;
+                    }
+                }
+                
+                return prices;
+            } catch (error) {
+                console.error('Failed to fetch prices:', error);
+                return {};
+            }
+        }
+        
+        // Initial load
+        loadDashboard();
+        
+        // Refresh every 60 seconds
+        setInterval(loadDashboard, 60000);
+    </script>
+</body>
+</html>
